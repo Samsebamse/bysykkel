@@ -1,10 +1,14 @@
 class Station {
 
-
+    /*
+        Global variables wihin "this" context, aka this class.
+        This means all methods can access these variables.
+    */
     allStations = [];
     allAvailability = [];
     apiKey = null;
 
+    // Handling button events.
     buttonHandler = () => {
         this.apiKey = document.getElementById("apikey").value;
         const body = document.getElementsByTagName("body")[0];
@@ -14,19 +18,20 @@ class Station {
         this.firstRequest();
     }
 
+    // Defining and making the object for Headers class.
     preDefinedHeaders = () => {
         return {
-            //"Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json",
             "Client-Identifier": this.apiKey
         };
     }
 
+    // Concatenating a bypass url to the target url to avoid CORS errors.
     byPassCORS = (url) => {
         return `https://cors-anywhere.herokuapp.com/${url}`;
     }
 
-    firstRequest = async() => {
+    // Firing the fist http request.
+    firstRequest = () => {
 
         const url = "https://oslobysykkel.no/api/v1/stations";
         const headers = new Headers(this.preDefinedHeaders());
@@ -45,9 +50,10 @@ class Station {
                     this.secondRequest();
                 }
             )
-            .catch(error => console.log(error));
+            .catch(error => {alert(`Two reasons you see this:\nYou do not has internet access or there is a problem with the server!\nMore info: ${error}`)});
     }
 
+    // Firing the second http request.
     secondRequest = () => {
         const url = "https://oslobysykkel.no/api/v1/stations/availability";
         const headers = new Headers(this.preDefinedHeaders());
@@ -65,12 +71,14 @@ class Station {
                     this.createTable();
                 }
             )
-            .catch(error => console.log(error));
+            .catch(error => {alert(`Two reasons you see this:\nYou do not has internet access or there is a problem with the server!\nMore info: ${error}`)});
     }
 
-    createTable = () => {
-        console.log(this.allStations);
-        console.log(this.allAvailability);
+    /*
+        Looping through two arrays and comparing ids from both.
+        Creating rows and colums dynamically when ids match.
+    */
+     createTable = () => {
         const body = document.getElementsByTagName("body")[0];
         const table = document.createElement("table");
         table.id = "station";
@@ -91,23 +99,19 @@ class Station {
         for(let i = 0; i < this.allStations.length-1; i++){
             for(let j = 0; j < this.allAvailability.length-1; j++){
                 if(this.allStations[i].id == this.allAvailability[j].id){
-                    let newRow = table.insertRow(table.rows.length);
-                    let firstCell = newRow.insertCell(0);
-                    let secondCell = newRow.insertCell(1);
-                    let thirdCell = newRow.insertCell(2);
+                    const newRow = table.insertRow(table.rows.length);
+                    const firstCell = newRow.insertCell(0);
+                    const secondCell = newRow.insertCell(1);
+                    const thirdCell = newRow.insertCell(2);
 
                     firstCell.innerHTML = this.allStations[i].title;
                     secondCell.innerHTML = this.allAvailability[j].availability.locks;
                     thirdCell.innerHTML = this.allAvailability[j].availability.bikes;
                 } 
             }
-        }
-            
-        
-                
-            
-        
+        } 
     }
+
 }
 
 const station = new Station();
